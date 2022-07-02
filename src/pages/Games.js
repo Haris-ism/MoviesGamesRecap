@@ -1,82 +1,67 @@
-import React, { Component } from "react"
+import { useState, useEffect } from "react"
 import { Layout, Card } from 'antd';
-import axios from "axios"
-const { Content} = Layout;
+import { getDataGames } from '../services.js'
+const { Content } = Layout;
 
-class Game extends Component {
-  constructor(props){
-    super(props)
-    this.state = {
-      games: []
+const Games = (props) => {
+  const [games, setGames] = useState([])
+  const handleGet = async () => {
+    try {
+      const game = await getDataGames()
+      setGames(game.data)
+    }
+    catch (err) {
+      console.log(err.message)
     }
   }
-  componentDidMount(){
-    axios.get(`https://614fdbbda706cd00179b7317.mockapi.io/games`)
-    .then(res => {
-      let games = res.data.map(el=>{ return {
-        id: el.id,
-        genre: el.genre,
-        image_url: el.image_url,
-        singlePlayer: el.singlePlayer,
-        multiplayer: el.multiplayer,
-        name: el.name,
-        platform: el.platform,
-        release: el.release,
-      }})
-      this.setState({games})
-    })
-    .catch(err=>err.message)
-  }
-  render(){
-    const detail = (id) => {
-      const { history } = this.props;
-      if(history) {
-        history.push(`/game/${id}`)
-      }
+  const detailGames = (id) => {
+    const { history } = props;
+    if (history) {
+      history.push(`/game/${id}`)
     }
-    function truncateString(str, num) {
-      if (str === undefined){
+  }
+  const truncateString = (str, num) => {
+    if (str === undefined) {
+      return ""
+    } else {
+      if (str === null) {
         return ""
-      }else{
-        if (str === null){
-          return ""
-        }else{
-          if (str.length <= num) {
-            return str
-          }
-          return str.slice(0, num) + '...'
+      } else {
+        if (str.length <= num) {
+          return str
         }
+        return str.slice(0, num) + '...'
       }
     }
-    return (
-      <>
-      <Content
-        className="site-layout-background"
-        style={{padding: 0,margin: 0,minHeight: 280}}
-      >
-        <h1 style={{"fontSize": "30px"}}>Popular Games</h1>
-        <div className="container"style={{display: "flex"}}>
-          {
-            this.state.games.map((item)=>{
-              return(
-                <div className="cards" >
-                <Card onClick={()=>{ detail(item.id)}} value={item.id} hoverable="true" style={{"borderRadius": "15px"}} bodyStyle={{padding: "0px"}}>
-                <img  src={item.image_url} />
-                <label>{item.name}</label>
-                <br/>
-                <label>Platform : </label>
-                <br/>
-                <label>{truncateString(item.platform, 25)}</label>
-                </Card>
-                </div>
-              )
-            })
-          }
-        </div>
-        </Content>
-      </>
-    )
   }
+  useEffect(() => {
+    handleGet();
+  }, [])
+  return (
+    <Content
+      className="site-layout-background"
+      style={{ padding: 0, margin: 0, minHeight: 280 }}
+    >
+      <h1 style={{ "fontSize": "30px" }}>Popular Games</h1>
+      <div className="container" style={{ display: "flex" }}>
+        {
+          games.map((item) => {
+            return (
+              <div className="cards" >
+                <Card onClick={() => { detailGames(item.id) }} value={item.id} hoverable="true" style={{ "borderRadius": "15px" }} bodyStyle={{ padding: "0px" }}>
+                  <img src={item.image_url} />
+                  <label>{item.name}</label>
+                  <br />
+                  <label>Platform : </label>
+                  <br />
+                  <label>{truncateString(item.platform, 25)}</label>
+                </Card>
+              </div>
+            )
+          })
+        }
+      </div>
+    </Content>
+  )
 }
-
-export default Game
+export default Games

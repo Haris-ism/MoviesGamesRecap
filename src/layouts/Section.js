@@ -1,4 +1,4 @@
-import React, {useContext} from "react"
+import { useContext } from "react"
 import { Switch, Route, Redirect } from "react-router-dom";
 import ChangePassword from "../pages/ChangePassword"
 import Register from "../pages/Register"
@@ -15,38 +15,38 @@ import MovieEdit from "../pages/MovieEdit"
 import MoviesForm from "../pages/MoviesForm"
 import MovieList from "../pages/MovieList"
 import Login from "../pages/Login"
-import {UserContext} from "../context/UserContext"
+import { UserContext } from "../context/UserContext"
 
-const Section = () =>{
+const Section = () => {
   const [user] = useContext(UserContext);
-  const PrivateRoute = ({user, ...props }) => {
+  const PrivateRoute = ({ user, ...props }) => {
     if (user) {
       return <Route {...props} />;
     } else {
       return <Redirect to="/login" />;
     }
   }
-  const LoginRoute = ({user, ...props }) =>
-  user ? <Redirect to="/" /> : <Route {...props} />
+  const LoginRoute = ({ user, ...props }) =>
+    user ? <Redirect to="/" /> : <Route {...props} />
 
-  return(
+  return (
     <section >
       <Switch>
-        <Route exact path="/" user={user} component={Home}/>
-        <Route exact path="/game" user={user} component={Games}/>
-        <PrivateRoute exact path="/game/create" user={user} component={GamesForm}/>
-        <PrivateRoute exact path="/movie/create" user={user} component={MoviesForm}/>
-        <Route exact path="/game/edit" user={user} component={GamesList}/>
-        <PrivateRoute exact path="/game/edit/:id" user={user} component={GameEdit}/>
-        <PrivateRoute exact path="/movie/edit/:id" user={user} component={MovieEdit}/>
-        <Route exact path="/movie/edit" user={user} component={MovieList}/>
-        <Route exact path="/movie" user={user} component={Movies}/>
-        <Route exact path="/about" user={user} component={About}/>
-        <Route exact path="/game/:id" user={user} component={GameDetail}/>
-        <Route exact path="/movie/:id" user={user} component={MovieDetail}/>
-        <Route exact path="/register" user={user} component={Register}/>
-        <LoginRoute exact path="/login" user={user} component={Login}/>
-        <PrivateRoute exact path="/ChangePassword" user={user} component={ChangePassword}/>
+        <Route exact path="/" user={user} component={Home} />
+        <Route exact path="/game" user={user} component={Games} />
+        <PrivateRoute exact path="/game/create" user={user} component={GamesForm} />
+        <PrivateRoute exact path="/movie/create" user={user} component={MoviesForm} />
+        <Route exact path="/game/edit" user={user} component={GamesList} />
+        <PrivateRoute exact path="/game/edit/:id" user={user} component={GameEdit} />
+        <PrivateRoute exact path="/movie/edit/:id" user={user} component={MovieEdit} />
+        <Route exact path="/movie/edit" user={user} component={MovieList} />
+        <Route exact path="/movie" user={user} component={Movies} />
+        <Route exact path="/about" user={user} component={About} />
+        <Route exact path="/game/:id" user={user} component={GameDetail} />
+        <Route exact path="/movie/:id" user={user} component={MovieDetail} />
+        <Route exact path="/register" user={user} component={Register} />
+        <LoginRoute exact path="/login" user={user} component={Login} />
+        <PrivateRoute exact path="/ChangePassword" user={user} component={ChangePassword} />
       </Switch>
     </section>
   )

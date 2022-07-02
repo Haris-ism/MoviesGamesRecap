@@ -1,91 +1,106 @@
-import React, {useState, useEffect, useContext} from "react"
-import axios from "axios"
-import { Form, Input, InputNumber, Button,Checkbox,Image } from 'antd';
-import {UserContext} from "../context/UserContext"
+import { useEffect, useContext } from "react"
+import { Form, Input, InputNumber, Button, Checkbox, Image } from 'antd';
+import { UserContext } from "../context/UserContext"
 import { useParams, useHistory } from "react-router-dom";
+import { getDataGame, putDataGame } from '../services.js'
+import { useFormik } from 'formik'
 const GameEdit = () => {
   const [user, setUser] = useContext(UserContext)
   let { id } = useParams();
   let history = useHistory();
-  const [name, setname] = useState("")
-  const [genre, setgenre] = useState("")
-  const [image_url, setimage_url] = useState("")
-  const [singlePlayer,setsinglePlayer] = useState(null)
-  const [multiplayer, setmultiplayer] = useState(null)
-  const [platform, setplatform] = useState("")
-  const [release, setrelease] = useState("")
-  let token = user ?  user.token : null
-  console.log({id});
-  useEffect( () => {
-    const fetchData = async ()=>{
-      const result = await axios.get(`https://614fdbbda706cd00179b7317.mockapi.io/games/${id}`)
-      setname(result.data.name)
-      setgenre(result.data.genre)
-      setimage_url(result.data.image_url)
-      setsinglePlayer(result.data.singlePlayer)
-      setmultiplayer(result.data.multiplayer)
-      setplatform(result.data.platform)
-      setrelease(result.data.release)
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      genre: "",
+      image_url: "",
+      singlePlayer: "",
+      multiplayer: "",
+      platform: "",
+      release: 0
     }
-    fetchData()
+  })
+  const handleGet = () => {
+    getDataGame(id)
+      .then(result => {
+        formik.setValues({
+          name: result.data.name,
+          genre: result.data.genre,
+          image_url: result.data.image_url,
+          singlePlayer: result.data.singlePlayer,
+          multiplayer: result.data.multiplayer,
+          platform: result.data.platform,
+          release: result.data.release
+        })
+      })
+      .catch(err => console.log("error:", err.message))
+  }
+  useEffect(() => {
+    handleGet()
   }, [])
 
-  const handleSubmit = (event) =>{
-    const submit = async ()=>{
-      await axios.put(`https://614fdbbda706cd00179b7317.mockapi.io/games/${id}`, {name: name, genre: genre, image_url: image_url, platform: platform, release: release,
-      singlePlayer: singlePlayer, multiplayer: multiplayer},{headers: {"Authorization" : "Bearer "+ token}})
-      history.push(`/game/edit`)
-    }
-    submit()
+  const handleSubmit = () => {
+    putDataGame(id, {
+      name: formik.values.name,
+      genre: formik.values.genre,
+      image_url: formik.values.image_url,
+      platform: formik.values.platform,
+      release: formik.values.release,
+      singlePlayer: formik.values.singlePlayer,
+      multiplayer: formik.values.multiplayer
+    })
+      .then(() => {
+        alert("Edit Success")
+        history.push(`/game/edit`)
+      })
+      .catch(err => console.log(err.message))
   }
-
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
   };
 
   const validateMessages = {
-    required: '${label} is required!',
+    required: `label is required!`,
     types: {
-      email: '${label} is not a valid email!',
-      number: '${label} is not a valid number!',
+      email: `label is not a valid email!`,
+      number: `label is not a valid number!`,
     },
     number: {
       range: '${label} must be between ${min} and ${max}',
     }
   }
-  return(
+  return (
     <>
-      <div style={{display:"flex", "justifyContent": "center",margin:"30px"}}>
-      <Form {...layout} onFinish={handleSubmit} validateMessages={validateMessages} >
-        <Form.Item  label="Name" >
-          <Input name="name" value={name} onChange={(e)=>setname(e.target.value)}/>
-        </Form.Item>
-        <Form.Item label="Genre" >
-          <Input name="genre" value={genre} onChange={(e)=>setgenre(e.target.value)}/>
-        </Form.Item>
-        <Form.Item label="Platform" >
-          <Input name="platform" value={platform} onChange={(e)=>setplatform(e.target.value)}/>
-        </Form.Item>
-        <Form.Item label="Image Url" >
-          <Input name="image_url" value={image_url} onChange={(e)=>setimage_url(e.target.value)}/>
-        </Form.Item>
-        <Form.Item label="Release Year:" >
-          <InputNumber style={{ width: '100%' }} name="release" value={release} onChange={(e)=>setrelease(e.target.value)}/>
-        </Form.Item>
-        <Form.Item label="Game Type" >
-          <Checkbox name="singlePlayer" checked={singlePlayer} onChange={(e)=>setsinglePlayer(e.target.checked)}>Singleplayer</Checkbox>
-          <Checkbox name="multiplayer" checked={multiplayer} onChange={(e)=>setmultiplayer(e.target.checked)}>Multiplayer</Checkbox>
-        </Form.Item>
-        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-          <Button type="primary" htmlType="submit" >
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
-      <div style={{"marginLeft":"10px"}}>
-      <Image width={200} src={image_url} />
-      </div>
+      <div style={{ display: "flex", "justifyContent": "center", margin: "30px" }}>
+        <Form {...layout} onFinish={handleSubmit} validateMessages={validateMessages} >
+          <Form.Item label="Name" >
+            <Input name="name" value={formik.values.name} onChange={formik.handleChange} />
+          </Form.Item>
+          <Form.Item label="Genre" >
+            <Input name="genre" value={formik.values.genre} onChange={formik.handleChange} />
+          </Form.Item>
+          <Form.Item label="Platform" >
+            <Input name="platform" value={formik.values.platform} onChange={formik.handleChange} />
+          </Form.Item>
+          <Form.Item label="Image Url" >
+            <Input name="image_url" value={formik.values.image_url} onChange={formik.handleChange} />
+          </Form.Item>
+          <Form.Item label="Release Year:" >
+            <Input style={{ width: '100%' }} name="release" value={formik.values.release} onChange={formik.handleChange} />
+          </Form.Item>
+          <Form.Item label="Game Type" >
+            <Checkbox name="singlePlayer" checked={formik.values.singlePlayer} onChange={formik.handleChange}>Singleplayer</Checkbox>
+            <Checkbox name="multiplayer" checked={formik.values.multiplayer} onChange={formik.handleChange}>Multiplayer</Checkbox>
+          </Form.Item>
+          <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+            <Button type="primary" htmlType="submit" >
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+        <div style={{ "marginLeft": "10px" }}>
+          <Image width={200} src={formik.values.image_url} />
+        </div>
       </div>
     </>
   )

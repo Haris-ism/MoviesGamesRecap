@@ -22,7 +22,7 @@ const Login = () => {
         localStorage.setItem("user", JSON.stringify(currentUser))
       })
       .catch((err) => {
-        alert(JSON.stringify(err.response.data))
+        alert(err)
       })
   }
   return (

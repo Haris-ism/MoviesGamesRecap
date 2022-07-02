@@ -1,102 +1,82 @@
-import React, {useState, useEffect, useContext} from "react"
-import axios from "axios"
-import {UserContext} from "../context/UserContext"
+import { useState, useEffect, useContext } from "react"
+import { UserContext } from "../context/UserContext"
 import { useHistory } from "react-router-dom"
-import { Table,Button,Input } from 'antd';
-import { PlusCircleTwoTone,EditTwoTone,CloseCircleTwoTone } from '@ant-design/icons';
+import { Table, Button, Input } from 'antd';
+import { PlusCircleTwoTone, EditTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
+import { getDataGames, deleteDataGame } from '../services.js'
 const GamesList = () => {
   const [user, setUser] = useContext(UserContext)
-  const [games, setgames] =  useState(null)
+  const [games, setgames] = useState(null)
   const [search, setSearch] = useState("")
   const [fetchTrigger, setFetchTrigger] = useState(true)
-  let token = user ?  user.token : null
+  const fetchData = () => {
+    getDataGames()
+      .then(result => {
+        setgames(
+          result.data.map(el => {
+            return {
+              id: el.id,
+              genre: el.genre,
+              image_url: el.image_url,
+              singlePlayer: el.singlePlayer,
+              multiplayer: el.multiplayer,
+              name: el.name,
+              platform: el.platform,
+              release: el.release,
+            }
+          })
+        )
+        setFetchTrigger(false)
+      })
+      .catch(err => console.log(err.message))
+  }
 
-  useEffect(  () => {
-    const fetchData = async ()=>{
-      const result = await axios.get(`https://614fdbbda706cd00179b7317.mockapi.io/games`)
-        .catch(err=>err.message)
-      setgames(
-        result.data.map(el=>{
-          const {
-            id,
-            genre,
-            image_url,
-            singlePlayer,
-            multiplayer,
-            name,
-            platform,
-            release} = el
-          return {id,
-            genre,
-            image_url,
-            singlePlayer,
-            multiplayer,
-            name,
-            platform,
-            release}
-        })
-      )
-      setFetchTrigger(false)
-    }
-    if (fetchTrigger){
-      fetchData()
-    }
+  useEffect(() => {
+    fetchData()
   }, [fetchTrigger])
 
-  const Action = ({itemId}) =>{
+  const Action = ({ itemId }) => {
     const handleDelete = () => {
-      axios.delete(`https://614fdbbda706cd00179b7317.mockapi.io/games/${itemId}`,{headers: {"Authorization" : "Bearer "+ token}})
-      .then(res => {
-        setFetchTrigger(true)
-      })
+      deleteDataGame(itemId)
+        .then(res => {
+          setFetchTrigger(true)
+        })
+        .catch(err => console.log(err.message))
     }
-    const handleEdit = () =>{
+    const handleEdit = () => {
       history.push(`/game/edit/${itemId}`)
     }
-    return(
+    return (
       <>
         <Button onClick={handleEdit} type="text" icon={<EditTwoTone />}>Edit</Button>
-        <br/>
+        <br />
         <Button onClick={handleDelete} type="text" icon={<CloseCircleTwoTone />}>Delete</Button>
       </>
     )
   }
 
-  function truncateString(str, num) {
-    if (str === undefined){
-      return ""
-    }else{
-      if (str === null){
-        return ""
-      }else{
-        if (str.length <= num) {
-          return str
-        }
-        return str.slice(0, num) + '...'
-      }
-    }
-  }
-
-  const submitSearch = (e) =>{
-    axios.get(`https://614fdbbda706cd00179b7317.mockapi.io/games`)
-    .then(res => {
-      let resgames = res.data.map(el=>{ return {
-        id: el.id,
-        genre: el.genre,
-        image_url: el.image_url,
-        singlePlayer: el.singlePlayer,
-        multiplayer: el.multiplayer,
-        name: el.name,
-        platform: el.platform,
-        release: el.release,
-        }
+  const submitSearch = (e) => {
+    getDataGames()
+      .then(res => {
+        let resgames = res.data.map(el => {
+          return {
+            id: el.id,
+            genre: el.genre,
+            image_url: el.image_url,
+            singlePlayer: el.singlePlayer,
+            multiplayer: el.multiplayer,
+            name: el.name,
+            platform: el.platform,
+            release: el.release,
+          }
+        })
+        let filteredgames = resgames.filter(x => x.name.toLowerCase().indexOf(e.toLowerCase()) !== -1)
+        setgames([...filteredgames])
       })
-      let filteredgames = resgames.filter(x=> x.name.toLowerCase().indexOf(e.toLowerCase()) !== -1)
-      setgames([...filteredgames])
-    })
+      .catch(err => console.log(err.message))
   }
 
-  const handleChangeSearch = (e)=>{
+  const handleChangeSearch = (e) => {
     setSearch(e.target.value)
   }
 
@@ -105,10 +85,10 @@ const GamesList = () => {
     {
       title: 'No',
       dataIndex: 'id',
-      render: (x,item,index)=>{
-        return(
+      render: (x, item, index) => {
+        return (
           <div>
-              {index+1}
+            {index + 1}
           </div>
         )
       }
@@ -117,11 +97,12 @@ const GamesList = () => {
       title: 'Image',
       dataIndex: 'image_url',
       render: (text, record) => {
-         return (
+        return (
           <div>
-          <img width ="100px"src={record.image_url}/>
+            <img width="100px" src={record.image_url} />
           </div>
-        )}
+        )
+      }
     },
     {
       title: 'Name',
@@ -139,81 +120,79 @@ const GamesList = () => {
       title: 'Gametype',
       dataIndex: 'gametype',
       render: (text, record) => {
-         return (
+        return (
           <div>
-          {record.singlePlayer ? `Singleplayer` : ''}
-          <br/>
-          {record.multiplayer ? `Multiplayer` : ''}
+            {record.singlePlayer ? `Singleplayer` : ''}
+            <br />
+            {record.multiplayer ? `Multiplayer` : ''}
           </div>
-        )}
-
+        )
+      }
     },
     {
       title: 'Platform',
       dataIndex: 'platform',
       filters: [
-      {
-        text: 'iOS',
-        value: 'iOS',
-      },
-      {
-        text: 'Android',
-        value: 'Android',
-      },
-      {
-        text: 'Nintendo Switch',
-        value: 'Nintendo Switch',
-      },
-      {
-        text: 'PlaySation',
-        value: 'PlayStation',
-      },
-      {
-        text: 'Xbox',
-        value: 'Xbox',
-      },
-      {
-        text: 'Windows',
-        value: 'Windows',
-      }
-
-    ],
-    onFilter: (value, record) => record.platform.includes(value)
+        {
+          text: 'iOS',
+          value: 'iOS',
+        },
+        {
+          text: 'Android',
+          value: 'Android',
+        },
+        {
+          text: 'Nintendo Switch',
+          value: 'Nintendo Switch',
+        },
+        {
+          text: 'PlaySation',
+          value: 'PlayStation',
+        },
+        {
+          text: 'Xbox',
+          value: 'Xbox',
+        },
+        {
+          text: 'Windows',
+          value: 'Windows',
+        }
+      ],
+      onFilter: (value, record) => record.platform.includes(value)
     },
     {
       title: 'Release',
       dataIndex: 'release',
       defaultSortOrder: 'ascend',
       sorter: (a, b) => a.release - b.release,
-
     },
     {
       title: 'Action',
       dataIndex: 'action',
       render: (text, record) => {
-         return (
+        return (
           <div>
-          <Action itemId={record.id} />
+            <Action itemId={record.id} />
           </div>
         )
       }
     },
   ];
 
-  return(
+  return (
     <>
-    <div style={{ margin:"10px auto 10px auto",width:"50vw","maxWidth":"600px","minWidth":"250px"}}>
-      <Input.Group >
-        <Input.Search allowClear value={search} onChange={handleChangeSearch} onSearch={submitSearch}/>
-      </Input.Group>
-    </div>
+      <div style={{ margin: "10px auto 10px auto", width: "50vw", "maxWidth": "600px", "minWidth": "250px" }}>
+        <Input.Group >
+          <Input.Search allowClear value={search} onChange={handleChangeSearch} onSearch={submitSearch} />
+        </Input.Group>
+      </div>
 
-    <form style={{paddingRight:"100px", display:"flex", "justifyContent": "flex-end",float: "right"}}>
-      <Button onClick={()=>{ history.push(`/game/create`)}} type="primary" shape="round" icon={<PlusCircleTwoTone />} >Create</Button>
-    </form>
-    <br/>
-    <br/>
-    <Table columns={columns} dataSource={games} pagination= {false}/>
+      <form style={{ paddingRight: "100px", display: "flex", "justifyContent": "flex-end", float: "right" }}>
+        <Button onClick={() => { history.push(`/game/create`) }} type="primary" shape="round" icon={<PlusCircleTwoTone />} >Create</Button>
+      </form>
+      <br />
+      <br />
+      <Table columns={columns} dataSource={games} pagination={false} />
     </>
   )
 }

@@ -5,14 +5,12 @@ const { Content } = Layout
 
 const Movies = (props) => {
   const [movies, setMovies] = useState([])
-  const handleGet = async () => {
-    try {
-      const movie = await getDataMovies()
-      setMovies(movie.data)
-    }
-    catch (err) {
-      console.log(err.message)
-    }
+  const handleGet = () => {
+    getDataMovies()
+      .then(movie => {
+        setMovies(movie.data)
+      })
+      .catch(err => console.log(err.message))
   }
   const detailMovies = (id) => {
     const { history } = props;

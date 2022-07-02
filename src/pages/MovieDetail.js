@@ -19,10 +19,9 @@ const MovieDetail = () => {
       description: ""
     }
   })
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await getDataMovie(id)
+  const fetchData = () => {
+    getDataMovie(id)
+      .then(result => {
         formik.setValues({
           title: result.data.title,
           rating: result.data.rating,
@@ -33,11 +32,10 @@ const MovieDetail = () => {
           review: result.data.review,
           description: result.data.description
         })
-      }
-      catch (err) {
-        console.log("error:", err.message)
-      }
-    }
+      })
+      .catch(err => console.log("error:", err.message))
+  }
+  useEffect(() => {
     fetchData()
   }, [])
 

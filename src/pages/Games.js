@@ -5,14 +5,12 @@ const { Content } = Layout;
 
 const Games = (props) => {
   const [games, setGames] = useState([])
-  const handleGet = async () => {
-    try {
-      const game = await getDataGames()
-      setGames(game.data)
-    }
-    catch (err) {
-      console.log(err.message)
-    }
+  const handleGet = () => {
+    getDataGames()
+      .then(game => {
+        setGames(game.data)
+      })
+      .catch(err => console.log(err.message))
   }
   const detailGames = (id) => {
     const { history } = props;

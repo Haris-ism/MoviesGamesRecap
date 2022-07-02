@@ -16,10 +16,9 @@ const GameDetail = () => {
       release: ""
     }
   })
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await getDataGame(id)
+  const handleGet = () => {
+    getDataGame(id)
+      .then(result => {
         formik.setValues({
           name: result.data.name,
           genre: result.data.genre,
@@ -29,12 +28,11 @@ const GameDetail = () => {
           platform: result.data.platform,
           release: result.data.release
         })
-      }
-      catch (err) {
-        console.log("error:", err.message)
-      }
-    }
-    fetchData()
+      })
+      .catch(err => console.log("error:", err.message))
+  }
+  useEffect(() => {
+    handleGet()
   }, [])
   return (
     <>

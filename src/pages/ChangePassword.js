@@ -20,19 +20,18 @@ const ChangePassword = () => {
       new_password: formik.values.newPassword,
       new_confirm_password: formik.values.confirmNewPassword
     }, { headers: { "Authorization": "Bearer " + token } })
-      .then(
-        () => {
-          let currentUser = {
-            current_password: formik.values.currentPassword,
-            new_password: formik.values.newPassword,
-            new_confirm_password: formik.values.confirmNewPassword
-          }
-          setUser(currentUser)
-          localStorage.setItem("user", JSON.stringify(currentUser))
-          alert("Password Has Been Changed")
+      .then(() => {
+        let currentUser = {
+          current_password: formik.values.currentPassword,
+          new_password: formik.values.newPassword,
+          new_confirm_password: formik.values.confirmNewPassword
         }
+        setUser(currentUser)
+        localStorage.setItem("user", JSON.stringify(currentUser))
+        alert("Password Has Been Changed")
+      }
       ).catch((err) => {
-        alert(JSON.stringify(err.response.data))
+        alert(err.message)
       })
   }
   return (

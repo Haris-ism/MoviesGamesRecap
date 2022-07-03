@@ -1,39 +1,36 @@
 import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
 import { Input } from "antd"
-import { registration } from '../services.js'
+import { useHistory } from "react-router-dom";
 import { useFormik } from 'formik'
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { auth } from "../services/firebase-config"
 const Register = () => {
+  let history = useHistory();
   const [, setUser] = useContext(UserContext)
   const formik = useFormik({
     initialValues: {
-      name: "",
       email: "",
       password: ""
     }
   })
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    registration(formik.values)
-      .then((res) => {
-        let user = res.data.user
-        let token = res.data.token
-        let currentUser = { name: user.name, email: user.email, token }
-        setUser(currentUser)
-        localStorage.setItem("user", JSON.stringify(currentUser))
-        alert("Registration Success")
+  const handleRegist = (e) => {
+    e.preventDefault()
+    createUserWithEmailAndPassword(auth, formik.values.email, formik.values.password)
+      .then(() => {
+        alert("Registration Completed")
+        history.push(`/login`)
       })
-      .catch((err) => {
-        alert(JSON.stringify(err.response.data))
+      .catch(err => {
+        console.log(err.message)
+        alert(err.message)
       })
   }
+
   return (
     <>
       <div style={{ margin: "0 auto", width: "400px", padding: "50px" }}>
-        <form onSubmit={handleSubmit}>
-          <strong style={{ display: "inline-block" }}>Name: </strong>
-          <Input type="text" name="name" onChange={formik.handleChange} value={formik.values.name} />
-          <br />
+        <form>
           <strong style={{ display: "inline-block" }}>Email: </strong>
           <Input type="email" name="email" onChange={formik.handleChange} value={formik.values.email} />
           <br />
@@ -41,7 +38,7 @@ const Register = () => {
           <Input type="password" name="password" onChange={formik.handleChange} value={formik.values.password} />
           <br />
           <br />
-          <button>Register</button>
+          <button onClick={handleRegist}>Register</button>
         </form>
       </div>
     </>

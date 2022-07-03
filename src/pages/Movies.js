@@ -1,16 +1,20 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
+import { UserContext } from "../context/UserContext"
 import { Layout, Card } from 'antd'
-import { getDataMovies } from '../services.js'
+import { getDataMovies } from '../services'
 const { Content } = Layout
 
 const Movies = (props) => {
+  const [, , , setLoader] = useContext(UserContext)
   const [movies, setMovies] = useState([])
-  const handleGet = () => {
-    getDataMovies()
+  const handleGet = async () => {
+    setLoader(true)
+    await getDataMovies()
       .then(movie => {
         setMovies(movie.data)
       })
       .catch(err => console.log(err.message))
+    setLoader(false)
   }
   const detailMovies = (id) => {
     const { history } = props;
@@ -44,8 +48,8 @@ const Movies = (props) => {
         minHeight: 280,
       }}
     >
-      <h1 style={{ "fontSize": "30px" }}>Popular Movies</h1>
-      <div className="container" style={{ display: "flex" }}>
+      <h1 style={{ "fontSize": "30px", display: "flex", justifyContent: "center" }}>Popular Movies</h1>
+      <div className="container" style={{ display: "flex", justifyContent: "center" }}>
         {
           movies.map((item) => {
             return (

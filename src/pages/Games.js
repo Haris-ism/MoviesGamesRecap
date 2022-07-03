@@ -1,16 +1,20 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState, useContext } from "react"
+import { UserContext } from "../context/UserContext"
 import { Layout, Card } from 'antd';
-import { getDataGames } from '../services.js'
+import { getDataGames } from '../services'
 const { Content } = Layout;
 
 const Games = (props) => {
+  const [, , , setLoader] = useContext(UserContext)
   const [games, setGames] = useState([])
-  const handleGet = () => {
-    getDataGames()
+  const handleGet = async () => {
+    setLoader(true)
+    await getDataGames()
       .then(game => {
         setGames(game.data)
       })
       .catch(err => console.log(err.message))
+    setLoader(false)
   }
   const detailGames = (id) => {
     const { history } = props;
@@ -40,8 +44,8 @@ const Games = (props) => {
       className="site-layout-background"
       style={{ padding: 0, margin: 0, minHeight: 280 }}
     >
-      <h1 style={{ "fontSize": "30px" }}>Popular Games</h1>
-      <div className="container" style={{ display: "flex" }}>
+      <h1 style={{ "fontSize": "30px", display: "flex", justifyContent: "center" }}>Popular Games</h1>
+      <div className="container" style={{ display: "flex", justifyContent: "center" }}>
         {
           games.map((item) => {
             return (

@@ -1,15 +1,11 @@
-import React, { useState, createContext } from "react";
+import { useState, createContext, useRef } from "react";
 
 export const UserContext = createContext();
-
 export const UserProvider = props => {
-  const currentUser = JSON.parse(localStorage.getItem("user"))
-  const [user, setUser] = useState(currentUser);
-  const [fetchTrigger, setFetchTrigger] = useState(true)
-  const [toggle,settoggle] = useState(false)
-
+  const [user, setUser] = useState(null);
+  const [loader, setLoader] = useState(false)
   return (
-    <UserContext.Provider value={[user, setUser, fetchTrigger, setFetchTrigger, toggle,settoggle]}>
+    <UserContext.Provider value={[user, setUser, loader, setLoader]}>
       {props.children}
     </UserContext.Provider>
   );

@@ -3,14 +3,15 @@ import { UserContext } from "../context/UserContext"
 import { useHistory } from "react-router-dom"
 import { Table, Button, Input } from 'antd';
 import { PlusCircleTwoTone, EditTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
-import { getDataMovies, deleteDataMovie } from '../services.js'
+import { getDataMovies, deleteDataMovie } from '../services'
 const MovieList = () => {
-  const [user, setUser] = useContext(UserContext)
+  const [, , , setLoader] = useContext(UserContext)
   const [movies, setmovies] = useState(null)
   const [search, setSearch] = useState("")
   const [fetchTrigger, setFetchTrigger] = useState(true)
-  const fetchData = () => {
-    getDataMovies()
+  const fetchData = async () => {
+    setLoader(true)
+    await getDataMovies()
       .then(result => {
         setmovies(
           result.data.map(el => {
@@ -30,6 +31,7 @@ const MovieList = () => {
         setFetchTrigger(false)
       })
       .catch(err => console.log(err.message))
+    setLoader(false)
   }
   useEffect(() => {
     fetchData()

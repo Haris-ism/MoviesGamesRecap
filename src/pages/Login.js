@@ -1,30 +1,32 @@
 import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
 import { Button, Input } from "antd"
-import { login } from '../services.js'
 import { useFormik } from 'formik'
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth"
+import { auth } from "../services/firebase-config"
 const Login = () => {
-  const [, setUser] = useContext(UserContext)
+  const [, setUser, loader, setLoader] = useContext(UserContext)
   const formik = useFormik({
     initialValues: {
       email: "",
       password: ""
     }
   })
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    login(formik.values)
-      .then((res) => {
-        let user = res.data.user
-        let token = res.data.token
-        let currentUser = { name: user.name, email: user.email, token }
-        setUser(currentUser)
-        localStorage.setItem("user", JSON.stringify(currentUser))
+  const handleLogin = async () => {
+    setLoader(true)
+    await signInWithEmailAndPassword(auth, formik.values.email, formik.values.password)
+      .then(() => {
+        alert("Logged In")
       })
-      .catch((err) => {
-        alert(err)
+      .catch(err => {
+        console.log(err.message)
+        alert(err.message)
       })
+    setLoader(false)
   }
+  onAuthStateChanged(auth, currentUser => {
+    setUser(currentUser?.email)
+  })
   return (
     <>
       <div style={{ margin: "0 auto", width: "400px", padding: "50px" }}>
@@ -36,7 +38,7 @@ const Login = () => {
           <Input type="password" name="password" onChange={formik.handleChange} value={formik.values.password} />
           <br />
           <br />
-          <Button onClick={handleSubmit}>Login</Button>
+          <Button onClick={handleLogin}>Login</Button>
         </form>
       </div>
     </>

@@ -4,7 +4,7 @@ import "./MobileAppsList.css"
 import { useHistory } from "react-router-dom";
 import { Form, Input, Button } from 'antd';
 import { useFormik } from 'formik'
-import { postDataMovie } from '../services.js'
+import { postDataMovie } from '../services'
 const MovieForm = () => {
   const { TextArea } = Input;
   const formik = useFormik({

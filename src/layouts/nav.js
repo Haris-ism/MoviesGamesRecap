@@ -1,22 +1,28 @@
-import { Layout } from 'antd';
+import { Layout, Spin } from 'antd';
+import { useContext } from "react"
+import { UserContext } from "../context/UserContext"
 import { BrowserRouter as Router } from "react-router-dom";
 import Headers from "./Headers"
 import Section from "./Section"
 import Sidebars from "./Sidebars"
 
 const Nav = () => {
+  const [, , loader] = useContext(UserContext)
   return (
-    <Router>
-      <Layout>
-        <Headers />
+    <Spin size="large" spinning={loader}
+      style={{ top: "20vh" }}>
+      <Router>
         <Layout>
-          <Sidebars className="desktop" />
-          <Layout style={{ padding: '0 24px 24px' }}>
-            <Section />
+          <Headers />
+          <Layout>
+            <Sidebars className="desktop" />
+            <Layout style={{ padding: '0 24px 24px' }}>
+              <Section />
+            </Layout>
           </Layout>
         </Layout>
-      </Layout>
-    </Router>
+      </Router>
+    </Spin>
   )
 }
 export default Nav

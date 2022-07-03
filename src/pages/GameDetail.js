@@ -1,9 +1,11 @@
-import { useEffect } from "react"
+import { useEffect, useContext } from "react"
+import { UserContext } from "../context/UserContext"
 import { useParams } from "react-router-dom";
 import { useFormik } from 'formik'
 import { Image } from 'antd';
-import { getDataGame } from '../services.js'
+import { getDataGame } from '../services'
 const GameDetail = () => {
+  const [, , loader, setLoader] = useContext(UserContext)
   let { id } = useParams();
   const formik = useFormik({
     initialValues: {
@@ -16,8 +18,9 @@ const GameDetail = () => {
       release: ""
     }
   })
-  const handleGet = () => {
-    getDataGame(id)
+  const handleGet = async () => {
+    setLoader(true)
+    await getDataGame(id)
       .then(result => {
         formik.setValues({
           name: result.data.name,
@@ -30,12 +33,13 @@ const GameDetail = () => {
         })
       })
       .catch(err => console.log("error:", err.message))
+    setLoader(false)
   }
   useEffect(() => {
     handleGet()
   }, [])
   return (
-    <>
+    <>{!loader &&
       <div id="article-list">
         <div style={{ display: "flex", "margin-top": "20px" }}>
           <Image src={formik.values.image_url} style={{ width: "300px", height: "400px", objectFit: "cover", "borderRadius": "15px" }} />
@@ -49,6 +53,7 @@ const GameDetail = () => {
           </div>
         </div>
       </div>
+    }
     </>
   )
 }

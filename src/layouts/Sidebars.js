@@ -3,16 +3,16 @@ import { Menu, Layout } from 'antd';
 import { UserOutlined, LaptopOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
+import { signOut, onAuthStateChanged } from "firebase/auth"
+import { auth } from "../services/firebase-config"
 const { SubMenu } = Menu;
 const { Sider } = Layout;
-
 const Sidebars = () => {
   const [user, setUser] = useContext(UserContext)
   const [sidebar, setSidebar] = useState(true)
   const handleLogout = () => {
-    setUser(null)
-    localStorage.clear()
-    alert("Logged Out")
+    signOut(auth)
+    alert("You're Logged Out")
   }
   const toggleIn = () => {
     setSidebar(false)
@@ -20,7 +20,9 @@ const Sidebars = () => {
   const toggleOut = () => {
     setSidebar(true)
   }
-
+  onAuthStateChanged(auth, currentUser => {
+    setUser(currentUser?.email)
+  })
   return (
     <>
       <div className="desktop">
@@ -31,7 +33,7 @@ const Sidebars = () => {
             {
               user ?
                 <>
-                  <SubMenu icon={<UserOutlined />} title={"User"}>
+                  <SubMenu icon={<UserOutlined />} title={user}>
                     <Menu.Item ><Link to="/ChangePassword">Change Password </Link></Menu.Item>
                     <Menu.Item style={{ cursor: "pointer" }} onClick={handleLogout}>Logout</Menu.Item>
                   </SubMenu>

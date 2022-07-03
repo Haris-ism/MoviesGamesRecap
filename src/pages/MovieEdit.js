@@ -1,12 +1,10 @@
-import { useEffect, useContext } from "react"
-import { UserContext } from "../context/UserContext"
+import { useEffect } from "react"
 import { Form, Input, Button, Image } from 'antd';
 import { useParams, useHistory } from "react-router-dom";
-import { getDataMovie, putDataMovie } from '../services.js'
+import { getDataMovie, putDataMovie } from '../services'
 import { useFormik } from 'formik'
 const MovieEdit = () => {
   const { TextArea } = Input
-  const [user, setUser] = useContext(UserContext)
   let { id } = useParams()
   let history = useHistory()
   const formik = useFormik({
@@ -21,8 +19,8 @@ const MovieEdit = () => {
       description: ""
     }
   })
-  const handleGet = () => {
-    getDataMovie(id)
+  const handleGet = async () => {
+    await getDataMovie(id)
       .then(result => {
         formik.setValues({
           title: result.data.title,

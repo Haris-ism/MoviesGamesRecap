@@ -2,7 +2,7 @@ import { useEffect, useContext } from "react"
 import { Form, Input, InputNumber, Button, Checkbox, Image } from 'antd';
 import { UserContext } from "../context/UserContext"
 import { useParams, useHistory } from "react-router-dom";
-import { getDataGame, putDataGame } from '../services.js'
+import { getDataGame, putDataGame } from '../services'
 import { useFormik } from 'formik'
 const GameEdit = () => {
   const [user, setUser] = useContext(UserContext)

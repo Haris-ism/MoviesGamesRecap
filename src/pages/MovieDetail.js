@@ -1,11 +1,13 @@
-import { useEffect } from "react"
+import { useEffect, useContext } from "react"
+import { UserContext } from "../context/UserContext"
 import { useParams } from "react-router-dom"
 import { StarTwoTone, ClockCircleTwoTone } from '@ant-design/icons'
 import { Image } from 'antd'
 import star from './star.png'
-import { getDataMovie } from '../services.js'
+import { getDataMovie } from '../services'
 import { useFormik } from 'formik'
 const MovieDetail = () => {
+  const [, , loader, setLoader] = useContext(UserContext)
   let { id } = useParams();
   const formik = useFormik({
     initialValues: {
@@ -19,8 +21,9 @@ const MovieDetail = () => {
       description: ""
     }
   })
-  const fetchData = () => {
-    getDataMovie(id)
+  const fetchData = async () => {
+    setLoader(true)
+    await getDataMovie(id)
       .then(result => {
         formik.setValues({
           title: result.data.title,
@@ -34,6 +37,7 @@ const MovieDetail = () => {
         })
       })
       .catch(err => console.log("error:", err.message))
+    setLoader(false)
   }
   useEffect(() => {
     fetchData()
@@ -41,22 +45,23 @@ const MovieDetail = () => {
 
   return (
     <>
-      <div id="article-list">
-        <div style={{ display: "flex", "margin-top": "20px" }}>
-          <Image src={formik.values.image_url} style={{ width: "300px", height: "400px", objectFit: "cover", "borderRadius": "15px" }} />
-          <div style={{ float: "left", "fontSize": "20px", padding: "10px", top: 0 }}>
-            <h3 style={{ "fontSize": "30px" }}>{formik.values.title} ({formik.values.year})</h3>
-            <div style={{ "fontSize": "23px" }}>({formik.values.rating}) <img src={star} style={{ width: "1.2em" }} /><StarTwoTone /><StarTwoTone />
-              | <ClockCircleTwoTone /> {formik.values.duration} Minutes | {formik.values.genre}</div><br />
-            <div >Description:</div>
-            <div>{formik.values.description}</div>
-            <br />
-            <div>Review:</div>
-            <div>{formik.values.review}</div>
+      {!loader &&
+        <div id="article-list">
+          <div style={{ display: "flex", "margin-top": "20px" }}>
+            <Image src={formik.values.image_url} style={{ width: "300px", height: "400px", objectFit: "cover", "borderRadius": "15px" }} />
+            <div style={{ float: "left", "fontSize": "20px", padding: "10px", top: 0 }}>
+              <h3 style={{ "fontSize": "30px" }}>{formik.values.title} ({formik.values.year})</h3>
+              <div style={{ "fontSize": "23px" }}>({formik.values.rating}) <img src={star} style={{ width: "1.2em" }} /><StarTwoTone /><StarTwoTone />
+                | <ClockCircleTwoTone /> {formik.values.duration} Minutes | {formik.values.genre}</div><br />
+              <div >Description:</div>
+              <div>{formik.values.description}</div>
+              <br />
+              <div>Review:</div>
+              <div>{formik.values.review}</div>
+            </div>
           </div>
         </div>
-      </div>
-
+      }
     </>
   )
 }

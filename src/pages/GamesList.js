@@ -3,14 +3,15 @@ import { UserContext } from "../context/UserContext"
 import { useHistory } from "react-router-dom"
 import { Table, Button, Input } from 'antd';
 import { PlusCircleTwoTone, EditTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
-import { getDataGames, deleteDataGame } from '../services.js'
+import { getDataGames, deleteDataGame } from '../services'
 const GamesList = () => {
-  const [user, setUser] = useContext(UserContext)
+  const [, , , setLoader] = useContext(UserContext)
   const [games, setgames] = useState(null)
   const [search, setSearch] = useState("")
   const [fetchTrigger, setFetchTrigger] = useState(true)
-  const fetchData = () => {
-    getDataGames()
+  const fetchData = async () => {
+    setLoader(true)
+    await getDataGames()
       .then(result => {
         setgames(
           result.data.map(el => {
@@ -29,6 +30,7 @@ const GamesList = () => {
         setFetchTrigger(false)
       })
       .catch(err => console.log(err.message))
+    setLoader(false)
   }
 
   useEffect(() => {

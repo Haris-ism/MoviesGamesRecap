@@ -3,7 +3,7 @@ import { UserContext } from "../context/UserContext"
 import { useHistory } from "react-router-dom";
 import { Form, Input, Button, Checkbox } from 'antd';
 import { useFormik } from 'formik'
-import { postDataGame } from '../services.js'
+import { postDataGame } from '../services'
 const GamesForm = () => {
   const formik = useFormik({
     initialValues: {

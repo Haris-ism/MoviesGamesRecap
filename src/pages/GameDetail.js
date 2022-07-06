@@ -5,7 +5,9 @@ import { useFormik } from 'formik'
 import { Image } from 'antd';
 import { getDataGame } from '../services'
 const GameDetail = () => {
-  const [, , loader, setLoader] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const loader = context.loader
+  const setLoader = context.setLoader
   let { id } = useParams();
   const formik = useFormik({
     initialValues: {

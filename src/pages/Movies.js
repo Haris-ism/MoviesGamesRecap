@@ -5,7 +5,8 @@ import { getDataMovies } from '../services'
 const { Content } = Layout
 
 const Movies = (props) => {
-  const [, , , setLoader] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const setLoader = context.setLoader
   const [movies, setMovies] = useState([])
   const handleGet = async () => {
     setLoader(true)

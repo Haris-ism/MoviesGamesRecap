@@ -1,5 +1,3 @@
-import { useContext } from "react"
-import { UserContext } from "../context/UserContext"
 import { Input } from "antd"
 import { useHistory } from "react-router-dom";
 import { useFormik } from 'formik'
@@ -7,7 +5,6 @@ import { createUserWithEmailAndPassword } from "firebase/auth"
 import { auth } from "../services/firebase-config"
 const Register = () => {
   let history = useHistory();
-  const [, setUser] = useContext(UserContext)
   const formik = useFormik({
     initialValues: {
       email: "",

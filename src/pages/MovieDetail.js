@@ -7,7 +7,9 @@ import star from './star.png'
 import { getDataMovie } from '../services'
 import { useFormik } from 'formik'
 const MovieDetail = () => {
-  const [, , loader, setLoader] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const loader = context.loader
+  const setLoader = context.setLoader
   let { id } = useParams();
   const formik = useFormik({
     initialValues: {

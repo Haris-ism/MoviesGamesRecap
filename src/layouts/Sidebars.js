@@ -8,7 +8,9 @@ import { auth } from "../services/firebase-config"
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 const Sidebars = () => {
-  const [user, setUser] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const user = context.user
+  const setUser = context.setUser
   const [sidebar, setSidebar] = useState(true)
   const handleLogout = () => {
     signOut(auth)

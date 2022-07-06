@@ -5,7 +5,8 @@ import { Table, Button, Input } from 'antd';
 import { PlusCircleTwoTone, EditTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import { getDataGames, deleteDataGame } from '../services'
 const GamesList = () => {
-  const [, , , setLoader] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const setLoader = context.setLoader
   const [games, setgames] = useState(null)
   const [search, setSearch] = useState("")
   const [fetchTrigger, setFetchTrigger] = useState(true)

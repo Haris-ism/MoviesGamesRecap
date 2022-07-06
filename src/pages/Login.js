@@ -5,7 +5,9 @@ import { useFormik } from 'formik'
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth"
 import { auth } from "../services/firebase-config"
 const Login = () => {
-  const [, setUser, loader, setLoader] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const setUser = context.setUser
+  const setLoader = context.setLoader
   const formik = useFormik({
     initialValues: {
       email: "",

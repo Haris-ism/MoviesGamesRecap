@@ -4,7 +4,8 @@ import { Carousel, Card } from 'antd';
 import { getDataMovies, getDataGames } from '../services'
 
 const Home = (props) => {
-  const [, , , setLoader] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const setLoader = context.setLoader
   const [movies, setMovies] = useState([])
   const [games, setGames] = useState([])
   const handleGet = async () => {

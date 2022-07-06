@@ -7,7 +7,8 @@ import Section from "./Section"
 import Sidebars from "./Sidebars"
 
 const Nav = () => {
-  const [, , loader] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const loader = context.loader
   return (
     <Spin size="large" spinning={loader}
       style={{ top: "20vh" }}>

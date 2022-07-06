@@ -5,7 +5,8 @@ import { getDataGames } from '../services'
 const { Content } = Layout;
 
 const Games = (props) => {
-  const [, , , setLoader] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const setLoader = context.setLoader
   const [games, setGames] = useState([])
   const handleGet = async () => {
     setLoader(true)

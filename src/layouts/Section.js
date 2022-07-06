@@ -18,7 +18,8 @@ import Login from "../pages/Login"
 import { UserContext } from "../context/UserContext"
 
 const Section = () => {
-  const [user] = useContext(UserContext);
+  const context = useContext(UserContext)
+  const user = context.user
   const PrivateRoute = ({ user, ...props }) => {
     if (user) {
       return <Route {...props} />;

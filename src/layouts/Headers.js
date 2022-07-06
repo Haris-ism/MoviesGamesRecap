@@ -6,7 +6,9 @@ import { UserContext } from "../context/UserContext";
 import { signOut, onAuthStateChanged } from "firebase/auth"
 import { auth } from "../services/firebase-config"
 const Headers = () => {
-  const [user, setUser] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const user = context.user
+  const setUser = context.setUser
   const handleLogout = () => {
     signOut(auth)
     alert("You're Logged Out")

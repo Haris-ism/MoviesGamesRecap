@@ -5,7 +5,8 @@ import { useParams, useHistory } from "react-router-dom";
 import { getDataGame, putDataGame } from '../services'
 import { useFormik } from 'formik'
 const GameEdit = () => {
-  const [user, setUser] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const user = context.user
   let { id } = useParams();
   let history = useHistory();
   const formik = useFormik({

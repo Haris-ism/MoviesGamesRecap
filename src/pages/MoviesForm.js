@@ -6,6 +6,8 @@ import { Form, Input, Button } from 'antd';
 import { useFormik } from 'formik'
 import { postDataMovie } from '../services'
 const MovieForm = () => {
+  const context = useContext(UserContext)
+  const user = context.user
   const { TextArea } = Input;
   const formik = useFormik({
     initialValues: {
@@ -19,7 +21,6 @@ const MovieForm = () => {
       description: ""
     }
   })
-  const [user, setUser] = useContext(UserContext)
   let history = useHistory();
   const handleSubmit = () => {
     postDataMovie({

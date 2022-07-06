@@ -5,6 +5,8 @@ import { Form, Input, Button, Checkbox } from 'antd';
 import { useFormik } from 'formik'
 import { postDataGame } from '../services'
 const GamesForm = () => {
+  const context = useContext(UserContext)
+  const user = context.user
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -16,7 +18,6 @@ const GamesForm = () => {
       release: ""
     }
   })
-  const [user, setUser] = useContext(UserContext)
   let history = useHistory();
   const handleSubmit = () => {
     postDataGame({

@@ -4,7 +4,8 @@ import { Button, Input } from "antd"
 import { useFormik } from 'formik'
 import { getAuth, updatePassword } from "firebase/auth";
 const ChangePassword = () => {
-  const [, setUser, loader, setLoader] = useContext(UserContext)
+  const context = useContext(UserContext)
+  const setLoader = context.setLoader
   const formik = useFormik({
     initialValues: {
       currentPassword: "",

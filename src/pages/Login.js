@@ -2,8 +2,7 @@ import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
 import { Button, Input } from "antd"
 import { useFormik } from 'formik'
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth"
-import { auth } from "../services/firebase-config"
+import { login } from '../services'
 const Login = () => {
   const context = useContext(UserContext)
   const setUser = context.setUser
@@ -14,21 +13,20 @@ const Login = () => {
       password: ""
     }
   })
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault()
     setLoader(true)
-    await signInWithEmailAndPassword(auth, formik.values.email, formik.values.password)
-      .then(() => {
-        alert("Logged In")
-      })
-      .catch(err => {
-        console.log(err.message)
-        alert(err.message)
-      })
+    try {
+      const result = await login(formik.values)
+      localStorage.setItem('userId', result.data.data.login.user)
+      localStorage.setItem('token', result.data.data.login.token)
+      setUser(result.data.data.login.user)
+    }
+    catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+    }
     setLoader(false)
   }
-  onAuthStateChanged(auth, currentUser => {
-    setUser(currentUser?.email)
-  })
   return (
     <>
       <div style={{ margin: "0 auto", width: "400px", padding: "50px" }}>

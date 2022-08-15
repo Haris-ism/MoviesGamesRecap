@@ -20,34 +20,30 @@ import { UserContext } from "../context/UserContext"
 const Section = () => {
   const context = useContext(UserContext)
   const user = context.user
-  const PrivateRoute = ({ user, ...props }) => {
-    if (user) {
-      return <Route {...props} />;
-    } else {
-      return <Redirect to="/login" />;
-    }
-  }
+  const PrivateRoute = ({ user, ...props }) =>
+    !user ? <Redirect to="/login" /> : <Route {...props} />
+
   const LoginRoute = ({ user, ...props }) =>
     user ? <Redirect to="/" /> : <Route {...props} />
 
   return (
     <section >
       <Switch>
-        <Route exact path="/" user={user} component={Home} />
-        <Route exact path="/game" user={user} component={Games} />
+        <PrivateRoute exact path="/ChangePassword" user={user} component={ChangePassword} />
         <PrivateRoute exact path="/game/create" user={user} component={GamesForm} />
         <PrivateRoute exact path="/movie/create" user={user} component={MoviesForm} />
-        <Route exact path="/game/edit" user={user} component={GamesList} />
         <PrivateRoute exact path="/game/edit/:id" user={user} component={GameEdit} />
         <PrivateRoute exact path="/movie/edit/:id" user={user} component={MovieEdit} />
+        <Route exact path="/game/edit" user={user} component={GamesList} />
         <Route exact path="/movie/edit" user={user} component={MovieList} />
-        <Route exact path="/movie" user={user} component={Movies} />
         <Route exact path="/about" user={user} component={About} />
         <Route exact path="/game/:id" user={user} component={GameDetail} />
         <Route exact path="/movie/:id" user={user} component={MovieDetail} />
         <Route exact path="/register" user={user} component={Register} />
+        <Route exact path="/game" user={user} component={Games} />
+        <Route exact path="/movie" user={user} component={Movies} />
+        <Route exact path="/" user={user} component={Home} />
         <LoginRoute exact path="/login" user={user} component={Login} />
-        <PrivateRoute exact path="/ChangePassword" user={user} component={ChangePassword} />
       </Switch>
     </section>
   )

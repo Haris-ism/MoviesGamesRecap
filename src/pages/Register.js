@@ -1,9 +1,12 @@
+import { useContext } from "react"
+import { UserContext } from "../context/UserContext"
 import { Input } from "antd"
 import { useHistory } from "react-router-dom";
 import { useFormik } from 'formik'
-import { createUserWithEmailAndPassword } from "firebase/auth"
-import { auth } from "../services/firebase-config"
+import { registration } from '../services'
 const Register = () => {
+  const context = useContext(UserContext)
+  const setLoader = context.setLoader
   let history = useHistory();
   const formik = useFormik({
     initialValues: {
@@ -11,17 +14,18 @@ const Register = () => {
       password: ""
     }
   })
-  const handleRegist = (e) => {
+  const handleRegist = async (e) => {
+    setLoader(true)
     e.preventDefault()
-    createUserWithEmailAndPassword(auth, formik.values.email, formik.values.password)
-      .then(() => {
-        alert("Registration Completed")
-        history.push(`/login`)
-      })
-      .catch(err => {
-        console.log(err.message)
-        alert(err.message)
-      })
+    try {
+      await registration(formik.values)
+      alert("Registration Completed")
+      history.push(`/login`)
+    }
+    catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+    }
+    setLoader(false)
   }
 
   return (

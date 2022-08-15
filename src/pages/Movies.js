@@ -10,17 +10,19 @@ const Movies = (props) => {
   const [movies, setMovies] = useState([])
   const handleGet = async () => {
     setLoader(true)
-    await getDataMovies()
-      .then(movie => {
-        setMovies(movie.data)
-      })
-      .catch(err => console.log(err.message))
+    try {
+      const movie = await getDataMovies("_id genre image_url title year")
+      setMovies(movie.data.data.fetchMovies)
+    }
+    catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+    }
     setLoader(false)
   }
-  const detailMovies = (id) => {
+  const detailMovies = (_id) => {
     const { history } = props;
     if (history) {
-      history.push(`/movie/${id}`)
+      history.push(`/movie/${_id}`)
     }
   }
   const truncateString = (str, num) => {
@@ -55,7 +57,7 @@ const Movies = (props) => {
           movies.map((item) => {
             return (
               <div className="cards" >
-                <Card onClick={() => { detailMovies(item.id) }} value={item.id} hoverable="true" style={{ "borderRadius": "15px" }} bodyStyle={{ padding: "0px" }}>
+                <Card onClick={() => { detailMovies(item._id) }} value={item._id} hoverable="true" style={{ "borderRadius": "15px" }} bodyStyle={{ padding: "0px" }}>
                   <img src={item.image_url} />
                   <label>{truncateString(item.title, 23)}</label>
                   <br />

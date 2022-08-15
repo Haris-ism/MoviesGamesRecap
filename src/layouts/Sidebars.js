@@ -1,20 +1,21 @@
 import { useContext, useState } from "react"
 import { Menu, Layout } from 'antd';
 import { UserOutlined, LaptopOutlined } from '@ant-design/icons';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
-import { signOut, onAuthStateChanged } from "firebase/auth"
-import { auth } from "../services/firebase-config"
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 const Sidebars = () => {
+  let history = useHistory();
   const context = useContext(UserContext)
   const user = context.user
   const setUser = context.setUser
   const [sidebar, setSidebar] = useState(true)
   const handleLogout = () => {
-    signOut(auth)
-    alert("You're Logged Out")
+    localStorage.removeItem('userId')
+    localStorage.removeItem('token')
+    setUser(null)
+    history.push(`/`)
   }
   const toggleIn = () => {
     setSidebar(false)
@@ -22,9 +23,6 @@ const Sidebars = () => {
   const toggleOut = () => {
     setSidebar(true)
   }
-  onAuthStateChanged(auth, currentUser => {
-    setUser(currentUser?.email)
-  })
   return (
     <>
       <div className="desktop">

@@ -22,19 +22,21 @@ const GameDetail = () => {
   })
   const handleGet = async () => {
     setLoader(true)
-    await getDataGame(id)
-      .then(result => {
-        formik.setValues({
-          name: result.data.name,
-          genre: result.data.genre,
-          image_url: result.data.image_url,
-          singlePlayer: result.data.singlePlayer,
-          multiplayer: result.data.multiplayer,
-          platform: result.data.platform,
-          release: result.data.release
-        })
+    try {
+      const result = await getDataGame(id, "name genre image_url singlePlayer multiPlayer platform release")
+      formik.setValues({
+        name: result.data.data.fetchOneGame.name,
+        genre: result.data.data.fetchOneGame.genre,
+        image_url: result.data.data.fetchOneGame.image_url,
+        singlePlayer: result.data.data.fetchOneGame.singlePlayer,
+        multiplayer: result.data.data.fetchOneGame.multiplayer,
+        platform: result.data.data.fetchOneGame.platform,
+        release: result.data.data.fetchOneGame.release
       })
-      .catch(err => console.log("error:", err.message))
+    }
+    catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+    }
     setLoader(false)
   }
   useEffect(() => {

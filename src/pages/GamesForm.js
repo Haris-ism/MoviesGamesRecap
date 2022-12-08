@@ -5,6 +5,7 @@ import { Form, Input, Button, Checkbox } from 'antd';
 import { useFormik } from 'formik'
 import { postDataGame } from '../services'
 const GamesForm = () => {
+  const token = localStorage.getItem('token')
   const context = useContext(UserContext)
   const user = context.user
   const formik = useFormik({
@@ -13,27 +14,36 @@ const GamesForm = () => {
       genre: "",
       image_url: "",
       singlePlayer: false,
-      multiplayer: false,
+      multiPlayer: false,
       platform: "",
       release: ""
     }
   })
   let history = useHistory();
-  const handleSubmit = () => {
-    postDataGame({
-      genre: formik.values.genre,
-      image_url: formik.values.image_url,
-      singlePlayer: formik.values.singlePlayer,
-      multiplayer: formik.values.multiplayer,
-      name: formik.values.name,
-      platform: formik.values.platform,
-      release: formik.values.release
-    })
-      .then(() => {
-        alert("Create Success")
-        history.push(`/game/edit`)
-      })
-      .catch(err => console.log(err.message))
+  const handleSubmit = async () => {
+    try {
+      await postDataGame({
+        genre: formik.values.genre,
+        image_url: formik.values.image_url,
+        singlePlayer: formik.values.singlePlayer,
+        multiPlayer: formik.values.multiPlayer,
+        name: formik.values.name,
+        platform: formik.values.platform,
+        release: formik.values.release
+      }, token)
+      alert("Create Success")
+      history.push(`/game/edit`)
+    }
+    catch (err) {
+      if (err.response?.data?.errors[0]?.message !== 'Please Login') {
+        alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+      } else {
+        alert("Session Expired, Please Login.")
+        localStorage.removeItem('token')
+        localStorage.removeItem('userId')
+        history.push(`/login`)
+      }
+    }
   }
   const layout = {
     labelCol: { span: 8 },
@@ -61,7 +71,7 @@ const GamesForm = () => {
           </Form.Item>
           <Form.Item label="Game Type" >
             <Checkbox name="singlePlayer" checked={formik.values.singlePlayer} onChange={formik.handleChange}>Singleplayer</Checkbox>
-            <Checkbox name="multiplayer" checked={formik.values.multiplayer} onChange={formik.handleChange}>Multiplayer</Checkbox>
+            <Checkbox name="multiPlayer" checked={formik.values.multiPlayer} onChange={formik.handleChange}>Multiplayer</Checkbox>
           </Form.Item>
           <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
             <Button type="primary" htmlType="submit" >

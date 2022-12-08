@@ -11,26 +11,26 @@ const Home = (props) => {
   const handleGet = async () => {
     setLoader(true)
     try {
-      const movie = await getDataMovies()
-      setMovies(movie.data)
-      const game = await getDataGames()
-      setGames(game.data)
+      const movie = await getDataMovies("_id genre image_url title year")
+      setMovies(movie.data.data.fetchMovies)
+      const game = await getDataGames("_id name platform image_url")
+      setGames(game.data.data.fetchGames)
     }
     catch (err) {
-      console.log(err.message)
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
     }
     setLoader(false)
   }
-  const detailGames = (id) => {
+  const detailGames = (_id) => {
     const { history } = props;
     if (history) {
-      history.push(`/game/${id}`)
+      history.push(`/game/${_id}`)
     }
   }
-  const detailMovies = (id) => {
+  const detailMovies = (_id) => {
     const { history } = props;
     if (history) {
-      history.push(`/movie/${id}`)
+      history.push(`/movie/${_id}`)
     }
   }
   const truncateString = (str, num) => {
@@ -76,7 +76,7 @@ const Home = (props) => {
             if ((movies.length) - index < 7) {
               return (
                 <div className="cards" >
-                  <Card onClick={() => { detailMovies(item.id) }} value={item.id} hoverable="true" style={{ "borderRadius": "15px" }} bodyStyle={{ padding: "0px" }}>
+                  <Card onClick={() => { detailMovies(item._id) }} value={item._id} hoverable="true" style={{ "borderRadius": "15px" }} bodyStyle={{ padding: "0px" }}>
                     <img src={item.image_url} />
                     <label>{truncateString(item.title, 23)}</label>
                     <br />
@@ -98,7 +98,7 @@ const Home = (props) => {
             if ((games.length) - index < 7) {
               return (
                 <div className="cards">
-                  <Card onClick={() => { detailGames(item.id) }} value={item.id} hoverable="true" style={{ "borderRadius": "15px" }} bodyStyle={{ padding: "0px" }}>
+                  <Card onClick={() => { detailGames(item._id) }} value={item._id} hoverable="true" style={{ "borderRadius": "15px" }} bodyStyle={{ padding: "0px" }}>
                     <img src={item.image_url} />
                     <label>{item.name}</label>
                     <br />

@@ -1,11 +1,15 @@
-import { useEffect } from "react"
+import { useEffect, useContext } from "react"
+import { UserContext } from "../context/UserContext"
 import { Form, Input, Button, Image } from 'antd';
 import { useParams, useHistory } from "react-router-dom";
 import { getDataMovie, putDataMovie } from '../services'
 import { useFormik } from 'formik'
 const MovieEdit = () => {
+  const token = localStorage.getItem('token')
   const { TextArea } = Input
   let { id } = useParams()
+  const context = useContext(UserContext)
+  const setLoader = context.setLoader
   let history = useHistory()
   const formik = useFormik({
     initialValues: {
@@ -20,41 +24,54 @@ const MovieEdit = () => {
     }
   })
   const handleGet = async () => {
-    await getDataMovie(id)
-      .then(result => {
-        formik.setValues({
-          title: result.data.title,
-          rating: result.data.rating,
-          genre: result.data.genre,
-          image_url: result.data.image_url,
-          duration: result.data.duration,
-          year: result.data.year,
-          review: result.data.review,
-          description: result.data.description
-        })
+    try {
+      const result = await getDataMovie(id, "_id title rating genre image_url duration year review description")
+      formik.setValues({
+        title: result.data.data.fetchOneMovie.title,
+        rating: result.data.data.fetchOneMovie.rating,
+        genre: result.data.data.fetchOneMovie.genre,
+        image_url: result.data.data.fetchOneMovie.image_url,
+        duration: result.data.data.fetchOneMovie.duration,
+        year: result.data.data.fetchOneMovie.year,
+        review: result.data.data.fetchOneMovie.review,
+        description: result.data.data.fetchOneMovie.description
       })
-      .catch(err => console.log("error:", err.message))
+    }
+    catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+    }
   }
   useEffect(() => {
     handleGet()
   }, [])
 
-  const handleSubmit = () => {
-    putDataMovie(id, {
-      title: formik.values.title,
-      rating: formik.values.rating,
-      genre: formik.values.genre,
-      image_url: formik.values.image_url,
-      duration: formik.values.duration,
-      year: formik.values.year,
-      review: formik.values.review,
-      description: formik.values.description
-    })
-      .then(() => {
-        alert("Edit Success")
-        history.push(`/movie/edit`)
-      })
-      .catch(err => console.log(err.message))
+  const handleSubmit = async () => {
+    setLoader(true)
+    try {
+      await putDataMovie(id, {
+        title: formik.values.title,
+        rating: formik.values.rating,
+        genre: formik.values.genre,
+        image_url: formik.values.image_url,
+        duration: formik.values.duration,
+        year: formik.values.year,
+        review: formik.values.review,
+        description: formik.values.description
+      }, token)
+      alert("Edit Success")
+      history.push(`/movie/edit`)
+    }
+    catch (err) {
+      if (err.response?.data?.errors[0]?.message !== 'Please Login') {
+        alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+      } else {
+        alert("Session Expired, Please Login.")
+        localStorage.removeItem('token')
+        localStorage.removeItem('userId')
+        history.push(`/login`)
+      }
+    }
+    setLoader(false)
   }
 
   const layout = {

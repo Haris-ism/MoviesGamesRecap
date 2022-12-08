@@ -5,33 +5,36 @@ import { Table, Button, Input } from 'antd';
 import { PlusCircleTwoTone, EditTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import { getDataMovies, deleteDataMovie } from '../services'
 const MovieList = () => {
+  const token = localStorage.getItem('token')
   const context = useContext(UserContext)
+  const user = context.user
   const setLoader = context.setLoader
   const [movies, setmovies] = useState(null)
   const [search, setSearch] = useState("")
   const [fetchTrigger, setFetchTrigger] = useState(true)
   const fetchData = async () => {
     setLoader(true)
-    await getDataMovies()
-      .then(result => {
-        setmovies(
-          result.data.map(el => {
-            return {
-              id: el.id,
-              description: el.description,
-              duration: el.duration,
-              genre: el.genre,
-              image_url: el.image_url,
-              rating: el.rating,
-              review: el.review,
-              title: el.title,
-              year: el.year
-            }
-          })
-        )
-        setFetchTrigger(false)
-      })
-      .catch(err => console.log(err.message))
+    try {
+      const result = await getDataMovies("title genre _id description duration image_url rating review year")
+      setmovies(
+        result.data.data.fetchMovies.map(el => {
+          return {
+            _id: el._id,
+            description: el.description,
+            duration: el.duration,
+            genre: el.genre,
+            image_url: el.image_url,
+            rating: el.rating,
+            review: el.review,
+            title: el.title,
+            year: el.year
+          }
+        })
+      )
+    }
+    catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+    }
     setLoader(false)
   }
   useEffect(() => {
@@ -39,13 +42,24 @@ const MovieList = () => {
   }, [fetchTrigger])
 
   const Action = ({ itemId }) => {
-    const handleDelete = () => {
-      deleteDataMovie(itemId)
-        .then(() => {
-          alert("Delete Success")
-          setFetchTrigger(true)
-        })
-        .catch(err => console.log(err.message))
+    const handleDelete = async () => {
+      setLoader(true)
+      try {
+        await deleteDataMovie(itemId, token)
+        alert("Delete Success")
+        setFetchTrigger(prev => !prev)
+      }
+      catch (err) {
+        if (err.response?.data?.errors[0]?.message !== 'Please Login') {
+          alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+        } else {
+          alert("Session Expired, Please Login.")
+          localStorage.removeItem('token')
+          localStorage.removeItem('userId')
+          history.push(`/login`)
+        }
+      }
+      setLoader(false)
     }
     const handleEdit = () => {
       history.push(`/movie/edit/${itemId}`)
@@ -58,27 +72,30 @@ const MovieList = () => {
       </>
     )
   }
-  const submitSearch = (e) => {
-    getDataMovies()
-      .then(res => {
-        let resmovies = res.data.map(el => {
-          return {
-            id: el.id,
-            description: el.description,
-            duration: el.duration,
-            genre: el.genre,
-            image_url: el.image_url,
-            rating: el.rating,
-            review: el.review,
-            title: el.title,
-            year: el.year
-          }
-        })
-        let filteredmovies = resmovies.filter(x => x.title.toLowerCase().indexOf(e.toLowerCase()) !== -1)
-        setmovies([...filteredmovies])
+  const submitSearch = async (e) => {
+    setLoader(true)
+    try {
+      const result = await getDataMovies("_id description duration genre image_url rating review title year")
+      let resmovies = result.data.data.fetchMovies.map(el => {
+        return {
+          _id: el._id,
+          description: el.description,
+          duration: el.duration,
+          genre: el.genre,
+          image_url: el.image_url,
+          rating: el.rating,
+          review: el.review,
+          title: el.title,
+          year: el.year
+        }
       })
-      .catch(err => console.log(err.message))
-
+      let filteredmovies = resmovies.filter(x => x.title.toLowerCase().indexOf(e.toLowerCase()) !== -1)
+      setmovies([...filteredmovies])
+    }
+    catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+    }
+    setLoader(false)
   }
   let history = useHistory();
   const handleChangeSearch = (e) => {
@@ -179,7 +196,7 @@ const MovieList = () => {
       render: (text, record) => {
         return (
           <div>
-            <Action itemId={record.id} />
+            <Action itemId={record._id} />
           </div>
         )
       }
@@ -188,6 +205,7 @@ const MovieList = () => {
 
   return (
     <>
+      {!user ? history.push(`/login`) : null}
       <div style={{ margin: "10px auto 10px auto", width: "50vw", "maxWidth": "600px", "minWidth": "250px" }}>
         <Input.Group >
           <Input.Search allowClear value={search} onChange={handleChangeSearch} onSearch={submitSearch} />

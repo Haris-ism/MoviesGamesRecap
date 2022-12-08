@@ -2,26 +2,33 @@ import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
 import { Button, Input } from "antd"
 import { useFormik } from 'formik'
-import { getAuth, updatePassword } from "firebase/auth";
+import { changePassword } from '../services'
 const ChangePassword = () => {
   const context = useContext(UserContext)
   const setLoader = context.setLoader
+  const user = context.user
+  const token = localStorage.getItem('token')
   const formik = useFormik({
     initialValues: {
-      currentPassword: "",
+      email: user,
       newPassword: "",
-      confirmNewPassword: ""
+      confirmPassword: ""
     }
   })
-  const account = getAuth().currentUser;
   const handleSubmit = async (event) => {
     setLoader(true)
     event.preventDefault()
-    if (formik.values.newPassword === formik.values.confirmNewPassword) {
-      await updatePassword(account, formik.values.newPassword)
-        .then(() => alert("success"))
-        .catch(err => alert(err.message))
-    } else alert("Password Don't Match")
+    try {
+      if (formik.values.newPassword !== formik.values.confirmPassword) {
+        throw new Error("Password Don't Match")
+      }
+      await changePassword(formik.values, token)
+      alert("Password Changed")
+    }
+    catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+      setLoader(false)
+    }
     setLoader(false)
   }
   return (
@@ -31,7 +38,7 @@ const ChangePassword = () => {
           <label>New Password: </label>
           <Input type="password" name="newPassword" onChange={formik.handleChange} value={formik.values.newPassword} />
           <label>Confirm New Password: </label>
-          <Input type="password" name="confirmNewPassword" onChange={formik.handleChange} value={formik.values.confirmNewPassword} />
+          <Input type="password" name="confirmPassword" onChange={formik.handleChange} value={formik.values.confirmPassword} />
           <br />
           <br />
           <br />

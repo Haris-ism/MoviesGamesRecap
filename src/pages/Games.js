@@ -10,17 +10,19 @@ const Games = (props) => {
   const [games, setGames] = useState([])
   const handleGet = async () => {
     setLoader(true)
-    await getDataGames()
-      .then(game => {
-        setGames(game.data)
-      })
-      .catch(err => console.log(err.message))
+    try {
+      const game = await getDataGames("_id name platform image_url")
+      setGames(game.data.data.fetchGames)
+    }
+    catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+    }
     setLoader(false)
   }
-  const detailGames = (id) => {
+  const detailGames = (_id) => {
     const { history } = props;
     if (history) {
-      history.push(`/game/${id}`)
+      history.push(`/game/${_id}`)
     }
   }
   const truncateString = (str, num) => {
@@ -51,7 +53,7 @@ const Games = (props) => {
           games.map((item) => {
             return (
               <div className="cards" >
-                <Card onClick={() => { detailGames(item.id) }} value={item.id} hoverable="true" style={{ "borderRadius": "15px" }} bodyStyle={{ padding: "0px" }}>
+                <Card onClick={() => { detailGames(item._id) }} value={item._id} hoverable="true" style={{ "borderRadius": "15px" }} bodyStyle={{ padding: "0px" }}>
                   <img src={item.image_url} />
                   <label>{item.name}</label>
                   <br />

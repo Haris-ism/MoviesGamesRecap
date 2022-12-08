@@ -6,38 +6,48 @@ import { Form, Input, Button } from 'antd';
 import { useFormik } from 'formik'
 import { postDataMovie } from '../services'
 const MovieForm = () => {
+  const token = localStorage.getItem('token')
   const context = useContext(UserContext)
   const user = context.user
   const { TextArea } = Input;
   const formik = useFormik({
     initialValues: {
       title: "",
-      rating: "",
+      rating: 0,
       genre: "",
       image_url: "",
-      duration: "",
-      year: "",
+      duration: 0,
+      year: 0,
       review: "",
       description: ""
     }
   })
   let history = useHistory();
-  const handleSubmit = () => {
-    postDataMovie({
-      description: formik.values.description,
-      duration: parseInt(formik.values.duration),
-      genre: formik.values.genre,
-      image_url: formik.values.image_url,
-      rating: parseInt(formik.values.rating),
-      review: formik.values.review,
-      title: formik.values.title,
-      year: parseInt(formik.values.year)
-    })
-      .then(() => {
-        alert("Create Success")
-        history.push(`/movie/edit`)
-      })
-      .catch(err => console.log(err.message))
+  const handleSubmit = async () => {
+    try {
+      await postDataMovie({
+        description: formik.values.description,
+        duration: Number(formik.values.duration),
+        genre: formik.values.genre,
+        image_url: formik.values.image_url,
+        rating: Number(formik.values.rating),
+        review: formik.values.review,
+        title: formik.values.title,
+        year: Number(formik.values.year)
+      }, token)
+      alert("Create Success")
+      history.push(`/movie/edit`)
+    }
+    catch (err) {
+      if (err.response?.data?.errors[0]?.message !== 'Please Login') {
+        alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+      } else {
+        alert("Session Expired, Please Login.")
+        localStorage.removeItem('token')
+        localStorage.removeItem('userId')
+        history.push(`/login`)
+      }
+    }
   }
   const layout = {
     labelCol: { span: 8 },

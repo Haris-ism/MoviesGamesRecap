@@ -1,21 +1,20 @@
 import { useContext } from "react"
 import { Menu, Dropdown } from 'antd';
 import { UserOutlined, LaptopOutlined, MenuOutlined } from '@ant-design/icons';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
-import { signOut, onAuthStateChanged } from "firebase/auth"
-import { auth } from "../services/firebase-config"
 const Headers = () => {
+  let history = useHistory();
   const context = useContext(UserContext)
-  const user = context.user
-  const setUser = context.setUser
+  const userId = localStorage.getItem('userId')
+  context.setUser(userId)
+  const user = localStorage.getItem('userId')
   const handleLogout = () => {
-    signOut(auth)
-    alert("You're Logged Out")
+    localStorage.removeItem('userId')
+    localStorage.removeItem('token')
+    context.setUser(null)
+    history.push(`/`)
   }
-  onAuthStateChanged(auth, currentUser => {
-    setUser(currentUser?.email)
-  })
   const menu = (
     <>
       {user ?

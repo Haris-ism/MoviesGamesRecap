@@ -25,20 +25,21 @@ const MovieDetail = () => {
   })
   const fetchData = async () => {
     setLoader(true)
-    await getDataMovie(id)
-      .then(result => {
-        formik.setValues({
-          title: result.data.title,
-          rating: result.data.rating,
-          genre: result.data.genre,
-          image_url: result.data.image_url,
-          duration: result.data.duration,
-          year: result.data.year,
-          review: result.data.review,
-          description: result.data.description
-        })
+    try {
+      const result = await getDataMovie(id, "_id title rating genre image_url duration year review description")
+      formik.setValues({
+        title: result.data.data.fetchOneMovie.title,
+        rating: result.data.data.fetchOneMovie.rating,
+        genre: result.data.data.fetchOneMovie.genre,
+        image_url: result.data.data.fetchOneMovie.image_url,
+        duration: result.data.data.fetchOneMovie.duration,
+        year: result.data.data.fetchOneMovie.year,
+        review: result.data.data.fetchOneMovie.review,
+        description: result.data.data.fetchOneMovie.description
       })
-      .catch(err => console.log("error:", err.message))
+    } catch (err) {
+      alert(err.response?.data?.errors[0]?.message || "Something Went Wrong Please Try Again Later.")
+    }
     setLoader(false)
   }
   useEffect(() => {
